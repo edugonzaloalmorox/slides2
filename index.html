@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Quantitative social science with R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Edu Gonzalo Almorox" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Quantitative social science with R
+## Get and manipulate data
+### Edu Gonzalo Almorox
+
+---
+
+
+exclude: true
+
+
+
+---
+
+# Outline
+
+.pull-left[1. Import data
+
+      - .csv
+      
+      - .excel
+      
+2. Types of data
+
+      - factors
+      
+      - strings
+      
+      - dates
+
+3. Manipulate data
+
+      - dplyr
+      
+      - tidyr
+      
+]
+
+.pull-right[
+
+&lt;figure&gt;&lt;img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW-RXsNKw8mOlCLUu54hp1hMyo6dPIlXD4XiYiAjxBUSamo0y_"&gt;&lt;figcaption&gt; &lt;a href=""&gt;&lt;/a&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+
+]
+---
+class: center, middle
+
+# Import data into R
+---
+## Getting data 
+
+-  There are two possible ways to input information: 
+
+     - **Manually**
+     
+     - **Import from somewhere**
+
+- The majority of the analyses consist of data created externally 
+
+    - Data are delivered in different **formats**
+    
+    - Important to understand how information is **structured**
+    
+    
+---
+## Step 1: Get started
+
+The first commands consist of the following instructions intended to locate the project in the computer and load the set of functions needed for the analysis 
+
+* Working directory
+
+```r
+# working directory
+setwd("/Users/my-file/my_document") 
+```
+
+* Packages
+
+```r
+install.packages() # for installing packages 
+```
+
+* Library
+
+```r
+library() # for loading libraries
+```
+
+
+---
+## Step 2: Load your data 
+
+* Various packages and libraries that allow for this 
+
+* Use depends on the type of data to be loaded
+
+| Function     | Package    | Format
+|---------------|-----------| ------------------------
+| `read.csv()`  | `base`    | Comma separated values
+| `read.dta()`  | [`foreign`](https://cran.r-project.org/web/packages/foreign/foreign.pdf) | Stata files
+| `import()`    |  [`rio`](https://cran.r-project.org/web/packages/rio/rio.pdf)   | All types
+| `read_csv()`  |  [`readr`](https://cran.r-project.org/web/packages/readr/readr.pdf)  | Comma separated values
+| `read_xlsx()` |  [`readr`](https://cran.r-project.org/web/packages/readr/readr.pdf)  | Excel type
+| `read_excel()`| [`readxl`](https://cran.r-project.org/web/packages/readxl/readxl.pdf)  | Excel files
+| `read_xml()`  | [`xml2`](https://cran.r-project.org/web/packages/xml2/xml2.pdf)        | XML files
+
+
+---
+## Load data: csv files
+
+* Comma separated files (`csv`) are quite common
+
+* Values are separated by commas
+
+* Base solution 
+
+
+```r
+# load data including working directory
+my_df = read.csv("data/data_intro_r.csv",
+                 sep = ",")
+
+head(my_df)
+```
+
+```
+##   location.id location.region       date jsa.fem
+## 1 1-125058834 East of England 2010-10-01      55
+## 2 1-125058834 East of England 2010-12-21      55
+## 3 1-125058834 East of England       &lt;NA&gt;      55
+## 4 1-125058834 East of England       &lt;NA&gt;      55
+## 5 1-118532985 East of England 2010-10-01      40
+## 6 1-118532985 East of England 2011-01-06      40
+```
+---
+## Load data: csv files
+
+* There are other functions: `import()`...
+
+
+```r
+# load data including working directory
+library(rio)
+my_df_import = import("data/data_intro_r.csv")
+
+head(my_df_import, 3)
+```
+
+```
+##   location.id location.region       date jsa.fem
+## 1 1-125058834 East of England 2010-10-01      55
+## 2 1-125058834 East of England 2010-12-21      55
+## 3 1-125058834 East of England       &lt;NA&gt;      55
+```
+---
+## Load data: csv files
+
+* ... and `read_csv()`
+
+
+```r
+# load data including working directory
+
+library(readr)
+my_df_readr = read_csv("data/data_intro_r.csv")
+
+head(my_df_readr)
+```
+
+```
+## # A tibble: 6 x 4
+##   location.id location.region date       jsa.fem
+##   &lt;chr&gt;       &lt;chr&gt;           &lt;date&gt;       &lt;dbl&gt;
+## 1 1-125058834 East of England 2010-10-01      55
+## 2 1-125058834 East of England 2010-12-21      55
+## 3 1-125058834 East of England NA              55
+## 4 1-125058834 East of England NA              55
+## 5 1-118532985 East of England 2010-10-01      40
+## 6 1-118532985 East of England 2011-01-06      40
+```
+
+* Faster
+
+* More flexible to read different types of variable (e.g. dates, times, currencies...)
+
+---
+## Load data: excel files
+
+* Excel files have been tedious to parse in R 
+
+* `readxl` works very well for this
+
+
+
+```r
+# load data including working directory
+
+library(readxl)
+my_excel = read_excel("data/r_intro.xlsx")
+
+
+head(my_excel, 5)
+```
+
+```
+## # A tibble: 5 x 13
+##   `benefit paymen… ...2  ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10
+##   &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 ONS Crown Copyr… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 2 &lt;NA&gt;             &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 3 sex              Total &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 4 item name        numb… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 5 age              Total &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## # … with 3 more variables: ...11 &lt;chr&gt;, ...12 &lt;chr&gt;, ...13 &lt;chr&gt;
+```
+
+---
+## Load data: excel files
+
+* Refine the information that can be loaded controlling for sheets, rows and columns
+
+      - **sheet names**
+
+```r
+# name of the sheet 
+library(readxl)
+my_excel = read_excel("data/r_intro.xlsx", sheet = "thisisaverylongnameforasheet")
+
+head(my_excel, 3)
+```
+
+```
+## # A tibble: 3 x 13
+##   `benefit paymen… ...2  ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10
+##   &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 ONS Crown Copyr… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 2 &lt;NA&gt;             &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 3 sex              Total &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## # … with 3 more variables: ...11 &lt;chr&gt;, ...12 &lt;chr&gt;, ...13 &lt;chr&gt;
+```
+ 
+---
+## Load data: excel files
+* Refine the information that can be loaded controlling for sheets, rows and columns
+
+      - **sheet position**
+
+```r
+# name of the sheet 
+library(readxl)
+my_excel = read_excel("data/r_intro.xlsx", sheet = 1)
+
+head(my_excel, 2)
+```
+
+```
+## # A tibble: 2 x 13
+##   `benefit paymen… ...2  ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10
+##   &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 ONS Crown Copyr… &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## 2 &lt;NA&gt;             &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
+## # … with 3 more variables: ...11 &lt;chr&gt;, ...12 &lt;chr&gt;, ...13 &lt;chr&gt;
+```
+
+---
+## Load data: excel files
+* Refine the information that can be loaded controlling for sheets, rows and columns
+  
+      - **rows**
+
+```r
+# rows
+library(readxl)
+my_excel_clean = read_excel("data/r_intro.xlsx", sheet = 1, cell_rows(10:15))
+
+head(my_excel_clean, 3)
+```
+
+```
+## # A tibble: 3 x 13
+##   ...1   ...2   ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10 ...11 ...12
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 local… &lt;NA&gt;   Augu… Nove… Febr… May … Augu… Nove… Febr… May … Augu… Nove…
+## 2 Baber… E0700… 2900  2860  2790  2690  2640  2600  2550  2490  2470  2430 
+## 3 Basil… E0700… 6210  6150  6010  5760  5670  5610  5540  5370  5270  5220 
+## # … with 1 more variable: ...13 &lt;chr&gt;
+```
+
+---
+
+## Load data: excel files
+* Refine the information that can be loaded controlling for sheets, rows and columns
+      
+      - **columns**
+
+```r
+library(readxl)
+
+# columns
+
+my_excel_clean_cols = read_excel("data/r_intro.xlsx", sheet = 1, cell_cols("C:L"))
+
+head(my_excel_clean_cols, 3)
+```
+
+```
+## # A tibble: 3 x 10
+##   `August 2014` `November 2014` `February 2015` `May 2015` `August 2015`
+##           &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;
+## 1          2900            2860            2790       2690          2640
+## 2          6210            6150            6010       5760          5670
+## 3          4580            4530            4430       4260          4210
+## # … with 5 more variables: `November 2015` &lt;dbl&gt;, `February 2016` &lt;dbl&gt;,
+## #   `May 2016` &lt;dbl&gt;, `August 2016` &lt;dbl&gt;, `November 2016` &lt;dbl&gt;
+```
+
+---
+## Load data: excel files
+* Refine the information that can be loaded controlling for sheets, rows and columns
+   
+    - **range**
+    
+
+```r
+library(readxl)
+
+# range
+my_excel_clean_range = read_excel("data/r_intro.xlsx", sheet = 1, range = "A11:M337")
+
+head(my_excel_clean_range, 3)
+```
+
+```
+## # A tibble: 3 x 13
+##   `local authorit… ...2  `August 2014` `November 2014` `February 2015`
+##   &lt;chr&gt;            &lt;chr&gt;         &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+## 1 Babergh          E070…          2900            2860            2790
+## 2 Basildon         E070…          6210            6150            6010
+## 3 Bedford          E060…          4580            4530            4430
+## # … with 8 more variables: `May 2015` &lt;dbl&gt;, `August 2015` &lt;dbl&gt;,
+## #   `November 2015` &lt;dbl&gt;, `February 2016` &lt;dbl&gt;, `May 2016` &lt;dbl&gt;,
+## #   `August 2016` &lt;dbl&gt;, `November 2016` &lt;dbl&gt;, `February 2017` &lt;dbl&gt;
+```
+
+---
+## Exercise
+
+Load information corresponding to 2015
+
+
+```
+## # A tibble: 6 x 4
+##   `February 2015` `May 2015` `August 2015` `November 2015`
+##             &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;           &lt;dbl&gt;
+## 1            2790       2690          2640            2600
+## 2            6010       5760          5670            5610
+## 3            4430       4260          4210            4170
+## 4            4530       4330          4270            4230
+## 5            4950       4740          4670            4600
+## 6            1740       1660          1640            1620
+```
+
+
+---
+class: center, middle
+# Types of data 
+### factors
+---
+## Data types: factors 
+
+* [Factors](http://r4ds.had.co.nz/factors.html) refer to variables that represent different categories: gender, labour status, being treated or not, etc...
+
+* What do we mean by categories? 
+
+      - fixed and known set of possible values
+        
+      - order in some cases 
+         
+![](figures/fig_factor.png)       
+
+         
+---
+
+## Data types: factors 
+
+
+
+```
+##   location.id location.region       date jsa.fem
+## 1 1-125058834 East of England 2010-10-01      55
+## 2 1-125058834 East of England 2010-12-21      55
+## 3 1-125058834 East of England       &lt;NA&gt;      55
+## 4 1-125058834 East of England       &lt;NA&gt;      55
+## 5 1-118532985 East of England 2010-10-01      40
+## 6 1-118532985 East of England 2011-01-06      40
+## 7 1-118532985 East of England       &lt;NA&gt;      40
+```
+
+---
+## Data types: factors 
+
+
+
+
+```r
+glimpse(my_data)
+```
+
+```
+## Observations: 97,416
+## Variables: 4
+## $ location.id     &lt;chr&gt; "1-125058834", "1-125058834", "1-125058834", "1-…
+## $ location.region &lt;chr&gt; "East of England", "East of England", "East of E…
+## $ date            &lt;date&gt; 2010-10-01, 2010-12-21, NA, NA, 2010-10-01, 201…
+## $ jsa.fem         &lt;dbl&gt; 55, 55, 55, 55, 40, 40, 40, 40, 35, 35, 35, 35, …
+```
+
+---
+
+## Data types: factors 
+
+* How can we transform `characters` into `factors`?
+
+* Base solution: combination of `$` and `as.factor()`
+
+
+```r
+my_data$location.id = as.factor(my_data$location.id)
+
+glimpse(my_data)
+```
+
+```
+## Observations: 97,416
+## Variables: 4
+## $ location.id     &lt;fct&gt; 1-125058834, 1-125058834, 1-125058834, 1-1250588…
+## $ location.region &lt;chr&gt; "East of England", "East of England", "East of E…
+## $ date            &lt;date&gt; 2010-10-01, 2010-12-21, NA, NA, 2010-10-01, 201…
+## $ jsa.fem         &lt;dbl&gt; 55, 55, 55, 55, 40, 40, 40, 40, 35, 35, 35, 35, …
+```
+
+
+* We will see other alternatives further on 
+
+---
+## Data types: factors 
+
+* The categories of the factor can be retrieve with `levels()` 
+
+*  *What are the regions of the locations?*
+
+
+```r
+# transform into a factor
+my_data$location.region = as.factor(my_data$location.region)
+
+# get level
+levels(my_data$location.region)
+```
+
+```
+##  [1] "East Midlands"            "East of England"         
+##  [3] "London"                   "North East"              
+##  [5] "North West"               "South East"              
+##  [7] "South West"               "Unspecified"             
+##  [9] "West Midlands"            "Yorkshire and The Humber"
+```
+
+---
+## Data types: factors
+
+* Levels can be renamed 
+
+* *Define "Unspecified" as "no_name"*
+
+
+```r
+library(forcats) 
+
+# transform into a factor
+my_data$location.region = as.factor(my_data$location.region)
+
+# get region levels
+regions = levels(my_data$location.region)
+
+fct_recode(regions, no_name = "Unspecified")
+```
+
+```
+##  [1] East Midlands            East of England         
+##  [3] London                   North East              
+##  [5] North West               South East              
+##  [7] South West               no_name                 
+##  [9] West Midlands            Yorkshire and The Humber
+## 10 Levels: East Midlands East of England London North East ... Yorkshire and The Humber
+```
+
+
+---
+## Data types: factors
+
+* Levels can be summarised
+
+* *How many observations do we have in each region?*
+
+
+```r
+table(my_data$location.region)
+```
+
+```
+## 
+##            East Midlands          East of England                   London 
+##                     9100                    10180                     9992 
+##               North East               North West               South East 
+##                     5560                    11508                    18412 
+##               South West              Unspecified            West Midlands 
+##                    12928                       16                    10532 
+## Yorkshire and The Humber 
+##                     9188
+```
+
+---
+## Exercise
+
+Create a variable called `regions.recoded` where "Unspecified" regions are recoded as "No Name"
+
+
+
+```
+##   location.id location.region       date jsa.fem regions.recoded
+## 1 1-125058834 East of England 2010-10-01      55 East of England
+## 2 1-125058834 East of England 2010-12-21      55 East of England
+## 3 1-125058834 East of England       &lt;NA&gt;      55 East of England
+## 4 1-125058834 East of England       &lt;NA&gt;      55 East of England
+## 5 1-118532985 East of England 2010-10-01      40 East of England
+## 6 1-118532985 East of England 2011-01-06      40 East of England
+```
+
+```
+## 
+##            East Midlands          East of England                   London 
+##                     9100                    10180                     9992 
+##               North East               North West               South East 
+##                     5560                    11508                    18412 
+##               South West                  No name            West Midlands 
+##                    12928                       16                    10532 
+## Yorkshire and The Humber 
+##                     9188
+```
+ 
+ 
+---
+class: center, middle
+# Types of data 
+### strings
+
+
+---
+
+## Data types: strings
+
+* Text can be analysed as data
+
+* Text data are becoming more frequent: tweets, reviews, news...
+
+* Text may appear in your data
+      - remove a given character in the names of your variables
+            
+      - replace a given character in your data
+            
+      - extact a given character in your data
+
+
+---
+## Data types: strings
+
+* Strings can be manipulated in multiple ways
+
+* [stringr](https://cran.r-project.org/web/packages/stringr/stringr.pdf) package is a complete tool
+
+
+|Function      | Description
+|------------- | -------------------
+|str_c()       | string concatenation
+|str_length()  | number of characters
+|str_sub()     | extracts substrings
+|str_dup()     | duplicates characters
+|str_trim()    | removes leading and trailing whitespace pads a string
+
+Source: [_"Handling and Processing Strings in R"_](http://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf) (Sánchez, 2014)
+
+---
+## Data types: strings
+
+* Create a new variable that includes a particular string to a variable - for example `"region_"`
+
+* Make it lower case
+
+
+```r
+library(stringr)
+
+# transform and add the string
+
+my_data$new_region = str_c("region", my_data$location.region, sep = "_")
+
+# make it lower
+
+my_data$new_region = tolower(my_data$new_region)
+
+head(my_data$new_region)
+```
+
+```
+## [1] "region_east of england" "region_east of england"
+## [3] "region_east of england" "region_east of england"
+## [5] "region_east of england" "region_east of england"
+```
+
+---
+## Data types: strings 
+
+
+```r
+glimpse(my_data)
+```
+
+```
+## Observations: 97,416
+## Variables: 6
+## $ location.id     &lt;fct&gt; 1-125058834, 1-125058834, 1-125058834, 1-1250588…
+## $ location.region &lt;fct&gt; East of England, East of England, East of Englan…
+## $ date            &lt;date&gt; 2010-10-01, 2010-12-21, NA, NA, 2010-10-01, 201…
+## $ jsa.fem         &lt;dbl&gt; 55, 55, 55, 55, 40, 40, 40, 40, 35, 35, 35, 35, …
+## $ regions.recoded &lt;fct&gt; East of England, East of England, East of Englan…
+## $ new_region      &lt;chr&gt; "region_east of england", "region_east of englan…
+```
+---
+
+## Data types: strings
+
+* Extract `region_`  from the variable `new_region` 
+
+
+```r
+library(stringr)
+
+my_data$new_region2 = str_sub(my_data$new_region, 1, 7)
+
+head(my_data$new_region2, 10)
+```
+
+```
+##  [1] "region_" "region_" "region_" "region_" "region_" "region_" "region_"
+##  [8] "region_" "region_" "region_"
+```
+
+
+* Drop `"_"` from `new_region` variable
+
+
+
+```r
+library(stringr)
+
+my_data$new_region2 = gsub("_", " ", my_data$new_region)
+
+head(my_data$new_region2)
+```
+
+```
+## [1] "region east of england" "region east of england"
+## [3] "region east of england" "region east of england"
+## [5] "region east of england" "region east of england"
+```
+
+---
+## Data types: strings 
+
+* Identify those observations whose region contains the word `East`
+
+
+```r
+my_data$region.east = str_detect(my_data$location.region, "East")
+
+table(my_data$region.east)
+```
+
+```
+## 
+## FALSE  TRUE 
+## 54164 43252
+```
+
+* Extract `East` from the names of the regions
+
+
+```r
+my_data$region.east2 = as.factor(str_extract(my_data$location.region, "East"))
+
+summary(my_data$region.east2)
+```
+
+```
+##  East  NA's 
+## 43252 54164
+```
+
+---
+
+class: center, middle
+
+# Types of data
+## dates and times
+
+---
+## Data types: dates and times
+
+* Dates can be considered differently depending on various issues
+
+      - is there information on time? *"2002-06-09 12:45:40"*
+      
+      - does it have time zones? (POSIXct and POSIXlt classes)
+      
+
+```r
+dates &lt;- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
+times &lt;- c("23:03:20", "22:29:56", "01:03:30", "18:21:03", "16:56:26")
+x &lt;- data.frame(dates, times, dates_times = paste(dates, times))
+```
+
+
+* [`lubridate`](https://cran.r-project.org/web/packages/lubridate/lubridate.pdf) allows for great flexibility when dealing with both types of data.
+---
+
+## Data types: dates
+
+* Transform to date format: `mdy_hms()`
+
+
+```r
+library(lubridate)
+str(x)
+```
+
+```
+## 'data.frame':	5 obs. of  3 variables:
+##  $ dates      : Factor w/ 4 levels "01/14/92","02/01/92",..: 3 3 1 4 2
+##  $ times      : Factor w/ 5 levels "01:03:30","16:56:26",..: 5 4 1 3 2
+##  $ dates_times: Factor w/ 5 levels "01/14/92 01:03:30",..: 4 3 1 5 2
+```
+
+```r
+# transform to "date format" 
+
+x$new_datetime = mdy_hms(x$dates_times)
+str(x)
+```
+
+```
+## 'data.frame':	5 obs. of  4 variables:
+##  $ dates       : Factor w/ 4 levels "01/14/92","02/01/92",..: 3 3 1 4 2
+##  $ times       : Factor w/ 5 levels "01:03:30","16:56:26",..: 5 4 1 3 2
+##  $ dates_times : Factor w/ 5 levels "01/14/92 01:03:30",..: 4 3 1 5 2
+##  $ new_datetime: POSIXct, format: "1992-02-27 23:03:20" "1992-02-27 22:29:56" ...
+```
+---
+## Data types: dates
+* Extract relevant information - e.g: _hours_, _day of the week_ 
+
+
+```r
+library(lubridate)
+
+# hours
+x$hour = hour(x$new_datetime)
+
+
+# week-day to "date format" 
+x$weekday = wday(x$new_datetime, label = TRUE)
+
+x
+```
+
+```
+##      dates    times       dates_times        new_datetime hour weekday
+## 1 02/27/92 23:03:20 02/27/92 23:03:20 1992-02-27 23:03:20   23     Thu
+## 2 02/27/92 22:29:56 02/27/92 22:29:56 1992-02-27 22:29:56   22     Thu
+## 3 01/14/92 01:03:30 01/14/92 01:03:30 1992-01-14 01:03:30    1     Tue
+## 4 02/28/92 18:21:03 02/28/92 18:21:03 1992-02-28 18:21:03   18     Fri
+## 5 02/01/92 16:56:26 02/01/92 16:56:26 1992-02-01 16:56:26   16     Sat
+```
+
+
+---
+## Data types: dates
+
+* Arithmetic operations 
+
+      - what´s the average date and time?
+      
+      - what are the max and min date and time?
+
+
+```r
+library(lubridate)
+
+summary(x$new_datetime) 
+```
+
+```
+##                  Min.               1st Qu.                Median 
+## "1992-01-14 01:03:30" "1992-02-01 16:56:26" "1992-02-27 22:29:56" 
+##                  Mean               3rd Qu.                  Max. 
+## "1992-02-13 21:10:51" "1992-02-27 23:03:20" "1992-02-28 18:21:03"
+```
+---
+class: center, middle
+# Manipulation of data  
+## dplyr and tidyr
+
+---
+## Data manipulation: dplyr
+
+* [`dplyr`](https://cran.r-project.org/web/packages/dplyr/dplyr.pdf) is the backbone of the grammar for data manipulation
+
+* Compatibility with the pipes: [`%&gt;%`](http://r4ds.had.co.nz/pipes.html)
+
+*  Main functions associated with different tasks 
+
+|Function   | Description
+| ----------|-----------------------
+|mutate()   |adds new variables that are functions of existing variables
+|select()   |picks variables based on their names.
+|filter()   |picks cases based on their values.
+|summarise()| reduces multiple values down to a single summary.
+|arrange()  |changes the ordering of the rows.
+[Source: tidyverse](http://dplyr.tidyverse.org/reference/index.html)
+
+---
+
+##Data manipulation: dplyr
+
+* Working example
+
+    - create a variable that reflects the level of female unemployment in the region of the location. Less than 30 claimants is below the average,
+30-35 is in the average and more than 35 is above the average. 
+
+
+```r
+library(dplyr)
+        
+my_data = read_csv("data/data_intro_r.csv")
+
+my_data = my_data %&gt;% mutate(unemp_level = ifelse(jsa.fem &lt; 30, "below", 
+                                  ifelse(jsa.fem &gt;= 30 &amp; jsa.fem &lt; 35, "medium",
+                                  ifelse(jsa.fem &gt;=35, "high", "other"))))
+
+head(my_data,4)
+```
+
+```
+## # A tibble: 4 x 5
+##   location.id location.region date       jsa.fem unemp_level
+##   &lt;chr&gt;       &lt;chr&gt;           &lt;date&gt;       &lt;dbl&gt; &lt;chr&gt;      
+## 1 1-125058834 East of England 2010-10-01      55 high       
+## 2 1-125058834 East of England 2010-12-21      55 high       
+## 3 1-125058834 East of England NA              55 high       
+## 4 1-125058834 East of England NA              55 high
+```
+
+---
+
+##Data manipulation: dplyr
+
+* Select locations in the South East and South West and order by date.
+
+
+```r
+library(dplyr)
+        
+regions_south = c("South East", "South West")
+
+my_data_south = my_data %&gt;%
+  filter(location.region %in% regions_south) %&gt;%
+  arrange(date)
+
+head(my_data_south,7)
+```
+
+```
+## # A tibble: 7 x 5
+##   location.id location.region date       jsa.fem unemp_level
+##   &lt;chr&gt;       &lt;chr&gt;           &lt;date&gt;       &lt;dbl&gt; &lt;chr&gt;      
+## 1 RX229       South East      2010-04-01      10 below      
+## 2 RX2Y5       South East      2010-04-01      25 below      
+## 3 RXXDL       South East      2010-04-01      10 below      
+## 4 RXXDM       South East      2010-04-01      10 below      
+## 5 RXXY3       South East      2010-04-01      10 below      
+## 6 RXXEC       South East      2010-04-01      30 medium     
+## 7 RXXY2       South East      2010-04-01       5 below
+```
+
+---
+
+##Data manipulation: dplyr
+
+* What´s the average, max and min number of claimants in each region? 
+
+
+```r
+sum_jsa = my_data %&gt;%
+  group_by(location.region) %&gt;%
+  summarise(mean.jsa = mean(jsa.fem),
+            min.jsa = min(jsa.fem),
+            max.jsa = max(jsa.fem)) 
+
+sum_jsa
+```
+
+```
+## # A tibble: 10 x 4
+##    location.region          mean.jsa min.jsa max.jsa
+##    &lt;chr&gt;                       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 East Midlands                38.5       0     200
+##  2 East of England              33.4       0     250
+##  3 London                       42.1       0     160
+##  4 North East                   51.7       0     265
+##  5 North West                   39.8       0     320
+##  6 South East                   26.2       0     375
+##  7 South West                   27.7       0     210
+##  8 Unspecified                  13.8       5      25
+##  9 West Midlands                44.0       0     235
+## 10 Yorkshire and The Humber     45.1       0     270
+```
+
+---
+##Data manipulation: dplyr
+
+
+```r
+sum_jsa = my_data %&gt;%
+  group_by(location.region) %&gt;%
+  summarise(mean.jsa = mean(jsa.fem),
+            min.jsa = min(jsa.fem),
+            max.jsa = max(jsa.fem)) %&gt;%
+  filter(location.region != "Unspecified")
+
+sum_jsa
+```
+
+```
+## # A tibble: 9 x 4
+##   location.region          mean.jsa min.jsa max.jsa
+##   &lt;chr&gt;                       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 East Midlands                38.5       0     200
+## 2 East of England              33.4       0     250
+## 3 London                       42.1       0     160
+## 4 North East                   51.7       0     265
+## 5 North West                   39.8       0     320
+## 6 South East                   26.2       0     375
+## 7 South West                   27.7       0     210
+## 8 West Midlands                44.0       0     235
+## 9 Yorkshire and The Humber     45.1       0     270
+```
+
+---
+## Data manipulation: dplyr
+
+* Change the types of variables 
+
+
+```r
+glimpse(my_data)
+```
+
+```
+## Observations: 97,416
+## Variables: 5
+## $ location.id     &lt;chr&gt; "1-125058834", "1-125058834", "1-125058834", "1-…
+## $ location.region &lt;chr&gt; "East of England", "East of England", "East of E…
+## $ date            &lt;date&gt; 2010-10-01, 2010-12-21, NA, NA, 2010-10-01, 201…
+## $ jsa.fem         &lt;dbl&gt; 55, 55, 55, 55, 40, 40, 40, 40, 35, 35, 35, 35, …
+## $ unemp_level     &lt;chr&gt; "high", "high", "high", "high", "high", "high", …
+```
+
+* `location.region` and `unemp_level` are represent categories. `date` represents dates. 
+
+
+
+```r
+my_data =  my_data %&gt;%  
+  mutate_at(vars(location.region, unemp_level), funs(as.factor)) %&gt;%
+  mutate_at(vars(date), funs(as.Date))
+```
+
+---
+## Data manipulation: dplyr
+
+
+```r
+glimpse(my_data)
+```
+
+```
+## Observations: 97,416
+## Variables: 5
+## $ location.id     &lt;chr&gt; "1-125058834", "1-125058834", "1-125058834", "1-…
+## $ location.region &lt;fct&gt; East of England, East of England, East of Englan…
+## $ date            &lt;date&gt; 2010-10-01, 2010-12-21, NA, NA, 2010-10-01, 201…
+## $ jsa.fem         &lt;dbl&gt; 55, 55, 55, 55, 40, 40, 40, 40, 35, 35, 35, 35, …
+## $ unemp_level     &lt;fct&gt; high, high, high, high, high, high, high, high, …
+```
+
+---
+## Data manipulation: dplyr
+
+* `dplyr` has functions for linking datasets
+
+| Function          | Description
+|----------------   | ------------
+| inner(join)       | return all rows from x where there are matching values in y, and all columns from x and y
+| left_join()       | return all rows from x, and all columns from x and y
+| right_join()      | return all rows from y, and all columns from x and y
+| semi_join()       | return all rows from x where there are matching values in y, keeping just columns from x
+| anti_join()       | return all rows from x where there are not matching values in y, keeping just columns from x
+| full_join()       | return all rows and all columns from both x and y
+ 
+---
+## Data manipulation: dplyr
+
+* Linking two datasets 
+
+
+```r
+library(dplyr)
+
+
+d1  = read_csv("data/pop_link.csv")
+
+d2 = read_csv("data/claim_link.csv")
+```
+
+---
+## Data manipulation: dplyr
+
+
+```r
+glimpse(d1)
+```
+
+```
+## Observations: 326
+## Variables: 8
+## $ `Local Authority` &lt;chr&gt; "Babergh", "Basildon", "Bedford", "Braintree",…
+## $ oslaua            &lt;chr&gt; "E07000200", "E07000066", "E06000055", "E07000…
+## $ `All Ages`        &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `Aged 65-69`      &lt;dbl&gt; 6947, 9808, 8600, 9443, 9917, 4464, 9580, 5102…
+## $ `Aged 70-74`      &lt;dbl&gt; 5045, 6816, 6223, 6461, 7249, 3174, 6988, 3744…
+## $ `Aged 75-79`      &lt;dbl&gt; 3907, 5850, 5177, 4864, 5977, 2902, 5870, 3320…
+## $ `Aged 80-84`      &lt;dbl&gt; 2856, 4493, 4000, 3561, 4358, 2368, 4361, 2519…
+## $ `Aged 85+`        &lt;dbl&gt; 2961, 3844, 3910, 3886, 4225, 2361, 4315, 2114…
+```
+
+
+
+
+```r
+glimpse(d2)
+```
+
+```
+## Observations: 326
+## Variables: 6
+## $ `Local Authority` &lt;chr&gt; "Babergh", "Basildon", "Bedford", "Braintree",…
+## $ code_la           &lt;chr&gt; "E07000200", "E07000066", "E06000055", "E07000…
+## $ `2014`            &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `2015`            &lt;dbl&gt; 88990, 181859, 166167, 150947, 134887, 76169, …
+## $ `2016`            &lt;dbl&gt; 89237, 183308, 168303, 151970, 135832, 76749, …
+## $ `2017`            &lt;dbl&gt; 89549, 184789, 170394, 153030, 136783, 77357, …
+```
+
+---
+## Data manipulation: dplyr
+
+* Add information from `d2` to `d1`
+
+
+```r
+new_data = left_join(d1, d2, by = c("Local Authority"))
+
+glimpse(new_data)
+```
+
+```
+## Observations: 326
+## Variables: 13
+## $ `Local Authority` &lt;chr&gt; "Babergh", "Basildon", "Bedford", "Braintree",…
+## $ oslaua            &lt;chr&gt; "E07000200", "E07000066", "E06000055", "E07000…
+## $ `All Ages`        &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `Aged 65-69`      &lt;dbl&gt; 6947, 9808, 8600, 9443, 9917, 4464, 9580, 5102…
+## $ `Aged 70-74`      &lt;dbl&gt; 5045, 6816, 6223, 6461, 7249, 3174, 6988, 3744…
+## $ `Aged 75-79`      &lt;dbl&gt; 3907, 5850, 5177, 4864, 5977, 2902, 5870, 3320…
+## $ `Aged 80-84`      &lt;dbl&gt; 2856, 4493, 4000, 3561, 4358, 2368, 4361, 2519…
+## $ `Aged 85+`        &lt;dbl&gt; 2961, 3844, 3910, 3886, 4225, 2361, 4315, 2114…
+## $ code_la           &lt;chr&gt; "E07000200", "E07000066", "E06000055", "E07000…
+## $ `2014`            &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `2015`            &lt;dbl&gt; 88990, 181859, 166167, 150947, 134887, 76169, …
+## $ `2016`            &lt;dbl&gt; 89237, 183308, 168303, 151970, 135832, 76749, …
+## $ `2017`            &lt;dbl&gt; 89549, 184789, 170394, 153030, 136783, 77357, …
+```
+
+---
+## Data manipulation: dplyr
+
+* Add information from `d2` to `d1`
+
+
+```r
+new_data = left_join(d1, d2,
+                     by = c("Local Authority" = "Local Authority", 
+                                    "oslaua" = "code_la"))
+
+glimpse(new_data)
+```
+
+```
+## Observations: 326
+## Variables: 12
+## $ `Local Authority` &lt;chr&gt; "Babergh", "Basildon", "Bedford", "Braintree",…
+## $ oslaua            &lt;chr&gt; "E07000200", "E07000066", "E06000055", "E07000…
+## $ `All Ages`        &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `Aged 65-69`      &lt;dbl&gt; 6947, 9808, 8600, 9443, 9917, 4464, 9580, 5102…
+## $ `Aged 70-74`      &lt;dbl&gt; 5045, 6816, 6223, 6461, 7249, 3174, 6988, 3744…
+## $ `Aged 75-79`      &lt;dbl&gt; 3907, 5850, 5177, 4864, 5977, 2902, 5870, 3320…
+## $ `Aged 80-84`      &lt;dbl&gt; 2856, 4493, 4000, 3561, 4358, 2368, 4361, 2519…
+## $ `Aged 85+`        &lt;dbl&gt; 2961, 3844, 3910, 3886, 4225, 2361, 4315, 2114…
+## $ `2014`            &lt;dbl&gt; 88845, 180521, 163924, 149985, 133986, 75645, …
+## $ `2015`            &lt;dbl&gt; 88990, 181859, 166167, 150947, 134887, 76169, …
+## $ `2016`            &lt;dbl&gt; 89237, 183308, 168303, 151970, 135832, 76749, …
+## $ `2017`            &lt;dbl&gt; 89549, 184789, 170394, 153030, 136783, 77357, …
+```
+
+---
+## Data manipulation: tidyr
+
+* [Tidyr](https://cran.r-project.org/web/packages/tidyr/tidyr.pdf) is helpful for creating [tidy datasets](http://vita.had.co.nz/papers/tidy-data.pdf)
+
+        - each variable is in a column 
+        
+        - each observation is in a row
+        
+        - each value in a cell.
+
+* Useful for reshaping data from wide to long formats and also for visualisations
+
+        - gather(): it makes “wide” data longer
+        
+        - spread(): it makes “long” data wider
+        
+---
+## Data manipulation: tidyr
+
+* Working example
+
+    - transform a wide data frame into a long
+    
+
+```r
+library(tidyr)
+library(dplyr)
+
+d1  = read_csv("data/pop_link.csv")
+
+head(d1)
+```
+
+```
+## # A tibble: 6 x 8
+##   `Local Authorit… oslaua `All Ages` `Aged 65-69` `Aged 70-74` `Aged 75-79`
+##   &lt;chr&gt;            &lt;chr&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+## 1 Babergh          E0700…      88845         6947         5045         3907
+## 2 Basildon         E0700…     180521         9808         6816         5850
+## 3 Bedford          E0600…     163924         8600         6223         5177
+## 4 Braintree        E0700…     149985         9443         6461         4864
+## 5 Breckland        E0700…     133986         9917         7249         5977
+## 6 Brentwood        E0700…      75645         4464         3174         2902
+## # … with 2 more variables: `Aged 80-84` &lt;dbl&gt;, `Aged 85+` &lt;dbl&gt;
+```
+
+---
+## Data manipulation: tidyr
+
+
+```r
+d1 %&gt;% gather(age, number, `All Ages`: `Aged 85+`)
+```
+
+```
+## # A tibble: 1,956 x 4
+##    `Local Authority` oslaua    age      number
+##    &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;     &lt;dbl&gt;
+##  1 Babergh           E07000200 All Ages  88845
+##  2 Basildon          E07000066 All Ages 180521
+##  3 Bedford           E06000055 All Ages 163924
+##  4 Braintree         E07000067 All Ages 149985
+##  5 Breckland         E07000143 All Ages 133986
+##  6 Brentwood         E07000068 All Ages  75645
+##  7 Broadland         E07000144 All Ages 125961
+##  8 Broxbourne        E07000095 All Ages  95748
+##  9 Cambridge         E07000008 All Ages 128515
+## 10 Castle Point      E07000069 All Ages  88907
+## # … with 1,946 more rows
+```
+
+---
+## Data manipulation: tidyr
+
+* `tidyr` and `dplyr`
+ 
+
+```r
+ d1 %&gt;% gather(age, number, `All Ages`: `Aged 85+`) %&gt;%
+  arrange(`Local Authority`)
+```
+
+```
+## # A tibble: 1,956 x 4
+##    `Local Authority` oslaua    age        number
+##    &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt;
+##  1 Adur              E07000223 All Ages    63176
+##  2 Adur              E07000223 Aged 65-69   4310
+##  3 Adur              E07000223 Aged 70-74   3283
+##  4 Adur              E07000223 Aged 75-79   2767
+##  5 Adur              E07000223 Aged 80-84   2086
+##  6 Adur              E07000223 Aged 85+     2161
+##  7 Allerdale         E07000026 All Ages    96471
+##  8 Allerdale         E07000026 Aged 65-69   7014
+##  9 Allerdale         E07000026 Aged 70-74   5275
+## 10 Allerdale         E07000026 Aged 75-79   4138
+## # … with 1,946 more rows
+```
+
+---
+## Exercise
+
+* Create a data frame that contains information on the district regarding the number of inhabitants associated with each age range and the information corresponding to each year
+
+
+```
+## # A tibble: 6 x 6
+##   `Local Authority` oslaua    age        number year  claimants
+##   &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;
+## 1 Adur              E07000223 All Ages    63176 2014      63176
+## 2 Adur              E07000223 All Ages    63176 2015      63618
+## 3 Adur              E07000223 All Ages    63176 2016      64123
+## 4 Adur              E07000223 All Ages    63176 2017      64656
+## 5 Adur              E07000223 Aged 65-69   4310 2014      63176
+## 6 Adur              E07000223 Aged 65-69   4310 2015      63618
+```
+
+---
+## Exercise
+
+
+```r
+new_df_long = new_data %&gt;% 
+  select(oslaua, `2014`:`2017`) %&gt;% 
+  gather(year, claimants, `2014`:`2017`)
+
+d1_long = d1 %&gt;% gather(age, number, `All Ages`: `Aged 85+`) %&gt;%
+  arrange(`Local Authority`)
+
+exercise = left_join(d1_long, new_df_long, by = "oslaua")
+
+head(exercise)
+```
+
+```
+## # A tibble: 6 x 6
+##   `Local Authority` oslaua    age        number year  claimants
+##   &lt;chr&gt;             &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;
+## 1 Adur              E07000223 All Ages    63176 2014      63176
+## 2 Adur              E07000223 All Ages    63176 2015      63618
+## 3 Adur              E07000223 All Ages    63176 2016      64123
+## 4 Adur              E07000223 All Ages    63176 2017      64656
+## 5 Adur              E07000223 Aged 65-69   4310 2014      63176
+## 6 Adur              E07000223 Aged 65-69   4310 2015      63618
+```
+
+
+---
+
+
+class: center, middle
+
+# Thanks!
+
+[@EdudinGonzalo](https://twitter.com/EdudinGonzalo)
+
+`eduardogonzaloalmorox@gmail.com`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
